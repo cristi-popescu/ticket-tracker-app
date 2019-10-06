@@ -1,9 +1,9 @@
 import React from "react";
-import TicketRow from "./TicketRow";
+import TicketTable from "./TicketTable";
+
+import Toast from "react-bootstrap/Toast";
 
 import { connect } from "react-redux";
-
-import Table from "react-bootstrap/Table";
 
 import { selectGadgetTickets, selectTicketStatuses } from "../selectors";
 
@@ -11,6 +11,7 @@ const Gadget = props => {
     const { tickets, ticketStatuses, type, limit } = props;
     const gadgetConfig = {
         lastTicketsAdded: {
+            title: "Recently Added Tickets",
             tableColumns: {
                 key: "Key",
                 name: "Name",
@@ -19,6 +20,7 @@ const Gadget = props => {
             }
         },
         lastTicketsResolved: {
+            title: "Recently Resolved Tickets",
             tableColumns: {
                 key: "Key",
                 name: "Name",
@@ -27,29 +29,22 @@ const Gadget = props => {
             }
         }
     };
-    const { tableColumns } = gadgetConfig[type];
-    const tableHeaders = Object.keys(tableColumns).map(key => {
-        return <th key={key}>{tableColumns[key]}</th>;
-    });
-    const ticketRows = tickets[type](limit).map(ticket => {
-        let status = ticketStatuses[ticket.status];
-        let ticketProp = { ...ticket, status };
-        return (
-            <TicketRow
-                key={ticket.id}
-                ticket={ticketProp}
-                tableColumns={tableColumns}
-            ></TicketRow>
-        );
-    });
+    const gadgetType = gadgetConfig[type];
+    const ticketTableProps = {
+        tableColumns: gadgetType.tableColumns,
+        tickets: tickets[type](limit),
+        ticketStatuses: ticketStatuses.byIds
+    };
 
     return (
-        <Table hover>
-            <thead>
-                <tr>{tableHeaders}</tr>
-            </thead>
-            <tbody>{ticketRows}</tbody>
-        </Table>
+        <Toast className="gadget-toast">
+            <Toast.Header closeButton={false}>
+                <h2>{gadgetType.title}</h2>
+            </Toast.Header>
+            <Toast.Body>
+                <TicketTable {...ticketTableProps}></TicketTable>
+            </Toast.Body>
+        </Toast>
     );
 };
 

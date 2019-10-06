@@ -14,9 +14,10 @@ import "./App.css";
 import Header from "./components/Header";
 import Gadget from "./components/Gadget";
 import TicketList from "./components/TicketList";
-import TicketAdd from "./components/TicketAdd";
+import TicketSave from "./components/TicketSave";
+import TicketDetail from "./components/TicketDetail";
 
-function App(props) {
+const App = props => {
     const fetchTickets = () => {
         const { dispatch } = props;
 
@@ -96,16 +97,19 @@ function App(props) {
                     <h1>Tickets</h1>
                     <TicketList />
                 </Route>
+                <Route path="/ticket/:ticketKey" component={TicketDetail} />
                 <Route path="/">
                     <h1>Dashboard</h1>
-                    <Gadget type="lastTicketsAdded" limit="5" />
-                    <Gadget type="lastTicketsResolved" limit="5" />
+                    <div class="gadget-container">
+                        <Gadget type="lastTicketsAdded" limit="5" />
+                        <Gadget type="lastTicketsResolved" limit="5" />
+                    </div>
                 </Route>
             </Switch>
-            <TicketAdd />
+            <TicketSave />
         </Router>
     );
-}
+};
 
 const mapDispatchToProps = dispatch => ({
     dispatch,

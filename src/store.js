@@ -30,7 +30,10 @@ const initialState = {
             direction: "asc"
         },
         lastAddedTicketKey: "",
-        showTicketAddModal: false,
+        showTicketModal: {
+            status: false,
+            editTicketKey: ""
+        },
         pending: false,
         error: ""
     }

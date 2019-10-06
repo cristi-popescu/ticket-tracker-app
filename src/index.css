@@ -12,9 +12,22 @@ code {
         monospace;
 }
 
+table {
+    max-width: 98%;
+    margin: 0 auto;
+}
+
 th,
 tr {
     cursor: pointer;
+}
+
+h1 {
+    margin: 2rem 1rem;
+}
+
+h2 {
+    margin: 1rem 0;
 }
 
 .sorted {
@@ -29,11 +42,36 @@ tr {
     background: url("arrow-down.png") no-repeat right 0.75rem center #ececec;
 }
 
-.toast.show {
-    left: 0;
-    margin: auto;
-    max-width: 700px;
-    position: absolute;
-    right: 0;
-    top: 0;
+.navbar-link {
+    color: #fff;
+    margin: 0 1rem;
+    text-decoration: none;
+}
+
+.navbar-link:hover {
+    color: #ececec;
+    text-decoration: none;
+}
+
+.gadget-container {
+    display: flex;
+}
+
+.gadget-toast {
+    flex-grow: 1;
+    margin: 0 1rem;
+    max-width: none;
+}
+
+.ticket-detail-toast {
+    margin: 1rem;
+    max-width: none;
+}
+
+.list-group {
+    margin: 1rem;
+}
+
+.ticket-detail-button {
+    margin: 0 0 0 1rem;
 }

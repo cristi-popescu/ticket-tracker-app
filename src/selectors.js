@@ -1,14 +1,25 @@
+// Return an array of ticket objects
 export const selectTickets = state => {
     const { items } = state.tickets;
 
-    // Return an array of ticket objects
     return items.allIds.map(ticketId => {
         return items.byIds[ticketId];
     });
 };
 
+// Return a function that retrieves the ticket with they key provided as argument
+export const selectTicketByKey = state => {
+    const tickets = selectTickets(state);
+
+    return key =>
+        tickets.filter(ticket => {
+            return ticket.key === key;
+        })[0];
+};
+
 export const selectSortingRule = state => state.tickets.sortingRule;
 
+// Return an array of ticket objects sorted by a provided key
 export const selectSortedTickets = (
     state,
     sortingRule = selectSortingRule(state)
@@ -94,10 +105,9 @@ export const selectSortedTickets = (
     return tickets;
 };
 
-export const selectTicketStatuses = state => state.tickets.statuses.byIds;
+export const selectTicketStatuses = state => state.tickets.statuses;
 
-export const selectShowTicketAddModal = state =>
-    state.tickets.showTicketAddModal;
+export const selectShowTicketModal = state => state.tickets.showTicketModal;
 
 export const selectLastTicketKey = state => {
     let { lastAddedTicketKey } = state.tickets;
@@ -124,7 +134,9 @@ export const selectNextTicketKey = state => {
 
 export const selectTicketSeverities = state => state.tickets.severities;
 
+// Return an object with functions for retrieving tickets depending on gadget configuration
 export const selectGadgetTickets = state => {
+    // Return recently added tickets, limit by provided argument
     const lastTicketsAdded = limit => {
         const tickets = selectSortedTickets(state, {
             sortingKey: "creationDate",
@@ -136,15 +148,18 @@ export const selectGadgetTickets = state => {
         });
     };
 
+    // Return recently resolved tickets, limit by provided argument
     const lastTicketsResolved = limit => {
         const tickets = selectSortedTickets(state, {
             sortingKey: "lastModified",
             direction: "desc"
         });
 
-        return tickets.filter((ticket, index) => {
+        const sortedTickets = tickets.filter((ticket, index) => {
             return ticket.status === "2";
         });
+
+        return sortedTickets.slice(0, limit);
     };
 
     return {

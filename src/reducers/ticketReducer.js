@@ -4,8 +4,10 @@ import {
     FETCH_TICKETS_ERROR,
     SORT_TICKETS,
     ADD_TICKET,
-    SHOW_TICKET_ADD_MODAL,
-    CLOSE_TICKET_ADD_MODAL
+    EDIT_TICKET,
+    SHOW_TICKET_MODAL,
+    CLOSE_TICKET_MODAL,
+    CHANGE_TICKET_STATUS
 } from "../actions/types";
 
 const ticketReducer = (state = {}, action) => {
@@ -43,27 +45,74 @@ const ticketReducer = (state = {}, action) => {
                 }
             };
         case ADD_TICKET:
-            const { byIds: stateByIds, allIds: stateAllIds } = state.items;
+            const { allIds: addTicketAllIds } = state.items;
             const nextId = (
-                parseInt(stateAllIds[stateAllIds.length - 1], 10) + 1
+                parseInt(addTicketAllIds[addTicketAllIds.length - 1], 10) + 1
             ).toString();
 
-            stateAllIds.push(nextId);
-            stateByIds[nextId] = { id: nextId, ...action.payload };
+            return {
+                ...state,
+                items: {
+                    ...state.items,
+                    byIds: {
+                        ...state.items.byIds,
+                        [nextId]: {
+                            id: nextId,
+                            ...action.payload
+                        }
+                    },
+                    allIds: [...state.items.allIds, nextId]
+                },
+                lastAddedTicketKey: action.payload.key
+            };
+        case EDIT_TICKET:
+            const { id: editTicketId } = action.payload;
 
             return {
                 ...state,
-                lastAddedTicketKey: action.payload.key
+                items: {
+                    ...state.items,
+                    byIds: {
+                        ...state.items.byIds,
+                        [editTicketId]: {
+                            ...state.items.byIds[editTicketId],
+                            ...action.payload
+                        }
+                    }
+                }
             };
-        case SHOW_TICKET_ADD_MODAL:
+        case SHOW_TICKET_MODAL:
             return {
                 ...state,
-                showTicketAddModal: true
+                showTicketModal: {
+                    status: true,
+                    ...action.payload
+                }
             };
-        case CLOSE_TICKET_ADD_MODAL:
+        case CLOSE_TICKET_MODAL:
             return {
                 ...state,
-                showTicketAddModal: false
+                showTicketModal: {
+                    status: false,
+                    editTicketKey: ""
+                }
+            };
+        case CHANGE_TICKET_STATUS:
+            const { id, newStatus, lastModified } = action.payload;
+
+            return {
+                ...state,
+                items: {
+                    ...state.items,
+                    byIds: {
+                        ...state.items.byIds,
+                        [id]: {
+                            ...state.items.byIds[id],
+                            status: newStatus.toString(),
+                            lastModified
+                        }
+                    }
+                }
             };
         default:
             return state;

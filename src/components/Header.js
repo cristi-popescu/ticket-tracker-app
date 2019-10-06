@@ -6,14 +6,13 @@ import Navbar from "react-bootstrap/Navbar";
 import Button from "react-bootstrap/Button";
 import Logo from "../logo.svg";
 
-import { showTicketAddModal } from "../actions/ticketActions";
-import { selectShowTicketAddModal } from "../selectors";
+import { showTicketModal } from "../actions/ticketActions";
 
 const Header = props => {
     const handleClick = () => {
         const { dispatch } = props;
 
-        dispatch(showTicketAddModal());
+        dispatch(showTicketModal({}));
     };
 
     return (
@@ -31,9 +30,13 @@ const Header = props => {
                 </Navbar.Brand>
             </Link>
 
-            <Link to="/">Dashboard</Link>
+            <Link to="/" className="navbar-link">
+                Dashboard
+            </Link>
 
-            <Link to="/ticket-list">View All Tickets</Link>
+            <Link to="/ticket-list" className="navbar-link">
+                View All Tickets
+            </Link>
 
             <Button variant="light" onClick={handleClick}>
                 Create Ticket
@@ -42,16 +45,12 @@ const Header = props => {
     );
 };
 
-const mapStateToProps = state => ({
-    showTicketAddModal: selectShowTicketAddModal(state)
-});
-
 const mapDispatchToProps = dispatch => ({
     dispatch,
-    ...bindActionCreators({ showTicketAddModal }, dispatch)
+    ...bindActionCreators({ showTicketModal }, dispatch)
 });
 
 export default connect(
-    mapStateToProps,
+    null,
     mapDispatchToProps
 )(Header);
