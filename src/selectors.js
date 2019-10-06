@@ -1,10 +1,19 @@
 export const selectTickets = state => {
-    const sortingRule = state.sortingRule;
+    const { items } = state.tickets;
 
-    // Create an array of ticket objects
-    const tickets = state.tickets.allIDs.map(ticketID => {
-        return state.tickets.byIDs[ticketID];
+    // Return an array of ticket objects
+    return items.allIds.map(ticketId => {
+        return items.byIds[ticketId];
     });
+};
+
+export const selectSortingRule = state => state.tickets.sortingRule;
+
+export const selectSortedTickets = (
+    state,
+    sortingRule = selectSortingRule(state)
+) => {
+    const tickets = selectTickets(state);
 
     /*
      * @description Sorting function for array of objects
@@ -34,6 +43,25 @@ export const selectTickets = state => {
             }
         };
 
+        // Create object with two functions for sorting by ticket key ascending and descending
+        // Ticket key has format TCK-1, so it actually needs to be sorted by the number in the key
+        const sortByTicketKey = {
+            asc: sortingKey => {
+                return (a, b) => {
+                    const numberA = a[sortingKey].split("-").slice(-1);
+                    const numberB = b[sortingKey].split("-").slice(-1);
+                    return numberA - numberB;
+                };
+            },
+            desc: sortingKey => {
+                return (a, b) => {
+                    const numberA = a[sortingKey].split("-").slice(-1);
+                    const numberB = b[sortingKey].split("-").slice(-1);
+                    return numberB - numberA;
+                };
+            }
+        };
+
         // Create object with two functions for sorting by date ascending and descending
         const sortByDate = {
             asc: sortingKey => {
@@ -52,7 +80,8 @@ export const selectTickets = state => {
             case "creationDate":
             case "lastModified":
                 return sortByDate[direction](sortingKey);
-            case "id":
+            case "key":
+                return sortByTicketKey[direction](sortingKey);
             case "name":
             case "status":
             default:
@@ -65,4 +94,61 @@ export const selectTickets = state => {
     return tickets;
 };
 
-export const selectTicketStatuses = state => state.ticketStatuses;
+export const selectTicketStatuses = state => state.tickets.statuses.byIds;
+
+export const selectShowTicketAddModal = state =>
+    state.tickets.showTicketAddModal;
+
+export const selectLastTicketKey = state => {
+    let { lastAddedTicketKey } = state.tickets;
+
+    if (!lastAddedTicketKey) {
+        const tickets = selectTickets(state);
+
+        lastAddedTicketKey = tickets[tickets.length - 1].key;
+    }
+
+    return lastAddedTicketKey;
+};
+
+export const selectNextTicketKey = state => {
+    const key = selectLastTicketKey(state);
+    const separator = "-";
+    const ticketKeyParts = key.split(separator);
+    let ticketNumber = ticketKeyParts[ticketKeyParts.length - 1];
+
+    ticketKeyParts.splice(-1, 1, ++ticketNumber);
+
+    return ticketKeyParts.join(separator);
+};
+
+export const selectTicketSeverities = state => state.tickets.severities;
+
+export const selectGadgetTickets = state => {
+    const lastTicketsAdded = limit => {
+        const tickets = selectSortedTickets(state, {
+            sortingKey: "creationDate",
+            direction: "desc"
+        });
+
+        return tickets.filter((ticket, index) => {
+            return index < limit;
+        });
+    };
+
+    const lastTicketsResolved = limit => {
+        const tickets = selectSortedTickets(state, {
+            sortingKey: "lastModified",
+            direction: "desc"
+        });
+
+        return tickets.filter((ticket, index) => {
+            return ticket.status === "2";
+        });
+    };
+
+    return {
+        lastTicketsAdded,
+        lastTicketsResolved
+    };
+};

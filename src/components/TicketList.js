@@ -6,66 +6,43 @@ import { bindActionCreators } from "redux";
 
 import Table from "react-bootstrap/Table";
 
+import { sortTickets } from "../actions/ticketActions";
 import {
-    fetchTicketsPending,
-    fetchTicketsSuccess,
-    fetchTicketsError
-} from "../actions/ticketActions";
-import { selectTickets, selectTicketStatuses } from "../selectors";
+    selectSortedTickets,
+    selectTicketStatuses,
+    selectSortingRule
+} from "../selectors";
 
 class TicketList extends Component {
     constructor(props) {
         super(props);
 
-        this.fetchTickets();
-
         this.sortTickets = this.sortTickets.bind(this);
     }
 
-    fetchTickets() {
-        const dispatch = this.props.dispatch;
+    sortTickets(e) {
+        const { sortingKey, direction } = this.props.sortingRule;
+        const { currentTarget } = e;
+        const triggeredSortingKey = currentTarget.getAttribute("column");
+        let triggeredDirection = "asc";
 
-        dispatch(fetchTicketsPending());
-
-        const ticketsData = {
-            tickets: {
-                "1": {
-                    id: "1",
-                    number: "TCK-1",
-                    name: "My First Ticket",
-                    creationDate: "2019-10-04T18:00:00",
-                    lastModified: "2019-10-04T21:00:00",
-                    status: "2"
-                },
-                "2": {
-                    id: "2",
-                    number: "TCK-2",
-                    name: "My Second Ticket",
-                    creationDate: "2019-10-04T20:00:00",
-                    lastModified: "2019-10-04T21:00:00",
-                    status: "1"
-                }
-            },
-            allIDs: ["1", "2"]
-        };
-
-        try {
-            // TODO: Get Tickets Service Call
-            dispatch(fetchTicketsSuccess(ticketsData));
-        } catch (e) {
-            dispatch(fetchTicketsError("Error loading tickets."));
+        if (triggeredSortingKey === sortingKey) {
+            triggeredDirection = direction === "asc" ? "desc" : "asc";
         }
-    }
 
-    sortTickets() {
-        //this.props.dispatch(sortTickets());
+        this.props.dispatch(
+            sortTickets({
+                sortingKey: triggeredSortingKey,
+                direction: triggeredDirection
+            })
+        );
     }
 
     render() {
-        const tickets = this.props.tickets;
-        const ticketStatuses = this.props.ticketStatuses;
+        const { tickets, ticketStatuses, sortingRule } = this.props;
+        const { sortingKey, direction } = sortingRule;
         const tableColumns = {
-            id: "ID",
+            key: "Key",
             name: "Name",
             status: "Status",
             creationDate: "Creation Date",
@@ -73,7 +50,14 @@ class TicketList extends Component {
         };
         const tableHeaders = Object.keys(tableColumns).map(key => {
             return (
-                <th key={key} onClick={this.sortTickets}>
+                <th
+                    key={key}
+                    onClick={this.sortTickets}
+                    column={key}
+                    className={
+                        sortingKey === key ? "sorted sorted-" + direction : ""
+                    }
+                >
                     {tableColumns[key]}
                 </th>
             );
@@ -88,12 +72,13 @@ class TicketList extends Component {
                     key={ticket.id}
                     ticket={ticketProp}
                     tableColumns={tableColumns}
+                    sortingKey={sortingKey}
                 ></TicketRow>
             );
         });
 
         return (
-            <Table hover variant="dark">
+            <Table hover>
                 <thead>
                     <tr>{tableHeaders}</tr>
                 </thead>
@@ -104,17 +89,16 @@ class TicketList extends Component {
 }
 
 const mapStateToProps = state => ({
-    tickets: selectTickets(state),
-    ticketStatuses: selectTicketStatuses(state)
+    tickets: selectSortedTickets(state),
+    ticketStatuses: selectTicketStatuses(state),
+    sortingRule: selectSortingRule(state)
 });
 
 const mapDispatchToProps = dispatch => ({
     dispatch,
     ...bindActionCreators(
         {
-            fetchTicketsPending,
-            fetchTicketsSuccess,
-            fetchTicketsError
+            sortTickets
         },
         dispatch
     )

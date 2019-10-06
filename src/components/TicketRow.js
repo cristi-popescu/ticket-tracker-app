@@ -26,10 +26,14 @@ const TicketRow = props => {
         return dateColumns.indexOf(key) === -1 ? value : formatDate(value);
     };
 
-    const ticket = props.ticket;
-    const tableColumns = props.tableColumns;
+    const { ticket } = props;
+    const { tableColumns, sortingKey } = props;
     const tableCells = Object.keys(tableColumns).map(key => {
-        return <td key={key}>{displayValue(key, ticket[key])}</td>;
+        return (
+            <td key={key} className={sortingKey === key ? "sorted" : ""}>
+                {displayValue(key, ticket[key])}
+            </td>
+        );
     });
 
     return <tr>{tableCells}</tr>;

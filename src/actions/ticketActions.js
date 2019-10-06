@@ -3,7 +3,9 @@ import {
     FETCH_TICKETS_SUCCESS,
     FETCH_TICKETS_ERROR,
     SORT_TICKETS,
-    ADD_TICKET
+    ADD_TICKET,
+    SHOW_TICKET_ADD_MODAL,
+    CLOSE_TICKET_ADD_MODAL
 } from "./types";
 
 export const fetchTicketsPending = () => {
@@ -16,8 +18,8 @@ export const fetchTicketsSuccess = data => {
     return {
         type: FETCH_TICKETS_SUCCESS,
         payload: {
-            byIDs: data.tickets,
-            allIDs: data.allIDs
+            byIds: data.tickets,
+            allIds: data.allIds
         }
     };
 };
@@ -29,9 +31,10 @@ export const fetchTicketsError = error => {
     };
 };
 
-export const sortTickets = () => {
+export const sortTickets = data => {
     return {
-        type: SORT_TICKETS
+        type: SORT_TICKETS,
+        payload: data
     };
 };
 
@@ -41,12 +44,22 @@ export const addTicket = data => {
     return {
         type: ADD_TICKET,
         payload: {
-            id: data.id,
-            number: data.number,
-            name: data.name,
-            creationDate: data.creationDate,
-            lastModified: data.lastModified,
-            status: data.status
+            creationDate: new Date(),
+            lastModified: new Date(),
+            status: "1",
+            ...data
         }
+    };
+};
+
+export const showTicketAddModal = () => {
+    return {
+        type: SHOW_TICKET_ADD_MODAL
+    };
+};
+
+export const closeTicketAddModal = () => {
+    return {
+        type: CLOSE_TICKET_ADD_MODAL
     };
 };
