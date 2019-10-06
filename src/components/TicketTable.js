@@ -1,7 +1,14 @@
 import React from "react";
+
+import { connect } from "react-redux";
+
+import Spinner from "react-bootstrap/Spinner";
+import Alert from "react-bootstrap/Alert";
+import Table from "react-bootstrap/Table";
+
 import TicketRow from "./TicketRow";
 
-import Table from "react-bootstrap/Table";
+import { selectRequestStatus } from "../selectors";
 
 const TicketTable = props => {
     const {
@@ -10,7 +17,8 @@ const TicketTable = props => {
         sortingRule,
         sortTicketsHandler,
         tickets,
-        ticketStatuses
+        ticketStatuses,
+        requestStatus
     } = props;
     const { sortingKey, direction } = sortingRule ? sortingRule : {};
     const tableHeaderAttributes = {
@@ -52,13 +60,25 @@ const TicketTable = props => {
     });
 
     return (
-        <Table hover>
-            <thead>
-                <tr>{tableHeaders}</tr>
-            </thead>
-            <tbody>{ticketRows}</tbody>
-        </Table>
+        <React.Fragment>
+            {requestStatus.pending ? (
+                <Spinner animation="border" />
+            ) : requestStatus.error ? (
+                <Alert variant="danger">{requestStatus.error}</Alert>
+            ) : (
+                <Table hover>
+                    <thead>
+                        <tr>{tableHeaders}</tr>
+                    </thead>
+                    <tbody>{ticketRows}</tbody>
+                </Table>
+            )}
+        </React.Fragment>
     );
 };
 
-export default TicketTable;
+const mapStateToProps = state => ({
+    requestStatus: selectRequestStatus(state)
+});
+
+export default connect(mapStateToProps)(TicketTable);

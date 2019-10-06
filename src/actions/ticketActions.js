@@ -19,17 +19,14 @@ export const fetchTicketsPending = () => {
 export const fetchTicketsSuccess = data => {
     return {
         type: FETCH_TICKETS_SUCCESS,
-        payload: {
-            byIds: data.tickets,
-            allIds: data.allIds
-        }
+        payload: data
     };
 };
 
-export const fetchTicketsError = error => {
+export const fetchTicketsError = data => {
     return {
         type: FETCH_TICKETS_ERROR,
-        error: error
+        payload: data
     };
 };
 

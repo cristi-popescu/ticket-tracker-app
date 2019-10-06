@@ -22,11 +22,11 @@ import {
     selectTicketByKey
 } from "../selectors";
 
-class TicketSave extends Component {
+class TicketModal extends Component {
     constructor(props) {
         super(props);
 
-        this.state = this.getCreateState();
+        this.state = this.getCreateState("");
 
         this.getTicketKey = this.getTicketKey.bind(this);
         this.getCreateState = this.getCreateState.bind(this);
@@ -42,13 +42,15 @@ class TicketSave extends Component {
     }
 
     getTicketKey() {
-        const { showTicketModal, nextTicketKey } = this.props;
+        const { showTicketModal, getNextTicketKey } = this.props;
+        const nextTicketKey = getNextTicketKey();
 
         return showTicketModal.editTicketKey || nextTicketKey;
     }
 
-    getCreateState() {
+    getCreateState(key) {
         return {
+            key,
             status: "1",
             severity: this.props.severities.allIds[0].toString(),
             name: "",
@@ -71,6 +73,7 @@ class TicketSave extends Component {
         );
 
         return {
+            key: this.getTicketKey(),
             status,
             severity,
             name,
@@ -163,7 +166,7 @@ class TicketSave extends Component {
                 };
 
                 this.setState({
-                    ...this.getCreateState(),
+                    ...this.getCreateState(""),
                     severity: "",
                     confirmationMessage
                 });
@@ -172,13 +175,14 @@ class TicketSave extends Component {
     }
 
     handleShow() {
-        const { nextTicketKey } = this.props;
+        const { getNextTicketKey } = this.props;
         const currentTicketKey = this.getTicketKey();
+        const nextTicketKey = getNextTicketKey();
 
         if (currentTicketKey !== nextTicketKey) {
             this.setState(this.getEditState());
         } else {
-            this.setState(this.getCreateState());
+            this.setState(this.getCreateState(currentTicketKey));
         }
     }
 
@@ -188,7 +192,7 @@ class TicketSave extends Component {
         dispatch(closeTicketModal());
 
         this.setState({
-            ...this.getCreateState(),
+            ...this.getCreateState(""),
             confirmationMessage: ""
         });
     }
@@ -196,6 +200,7 @@ class TicketSave extends Component {
     render() {
         const { statuses, severities, showTicketModal } = this.props;
         const {
+            key,
             status,
             severity,
             name,
@@ -205,7 +210,6 @@ class TicketSave extends Component {
             showStatuses,
             buttonText
         } = this.state;
-        const ticketKey = this.getTicketKey();
 
         return (
             <Modal
@@ -227,7 +231,7 @@ class TicketSave extends Component {
                                     <Form.Label>Key</Form.Label>
                                     <Form.Control
                                         type="text"
-                                        value={ticketKey}
+                                        value={key}
                                         disabled
                                     ></Form.Control>
                                 </Form.Group>
@@ -334,7 +338,7 @@ class TicketSave extends Component {
 
 const mapStateToProps = state => ({
     showTicketModal: selectShowTicketModal(state),
-    nextTicketKey: selectNextTicketKey(state),
+    getNextTicketKey: selectNextTicketKey(state),
     severities: selectTicketSeverities(state),
     statuses: selectTicketStatuses(state),
     getTicketByKey: selectTicketByKey(state)
@@ -348,4 +352,4 @@ const mapDispatchToProps = dispatch => ({
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(TicketSave);
+)(TicketModal);

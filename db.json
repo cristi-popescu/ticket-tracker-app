@@ -1,0 +1,54 @@
+{
+    "tickets": [
+        {
+            "id": "1",
+            "key": "TCK-1",
+            "name": "My First Ticket",
+            "description": "Lorem ipsum 1",
+            "creationDate": "2019-10-04T18:00:00",
+            "lastModified": "2019-10-04T22:00:00",
+            "status": "2",
+            "severity": "4"
+        },
+        {
+            "id": "2",
+            "key": "TCK-2",
+            "name": "My Second Ticket",
+            "description": "Lorem ipsum 2",
+            "creationDate": "2019-10-04T20:00:00",
+            "lastModified": "2019-10-04T21:00:00",
+            "status": "1",
+            "severity": "5"
+        },
+        {
+            "id": "3",
+            "key": "TCK-3",
+            "name": "My Third Ticket",
+            "description": "Lorem ipsum 3",
+            "creationDate": "2019-10-04T20:00:00",
+            "lastModified": "2019-10-04T21:00:00",
+            "status": "1",
+            "severity": "3"
+        },
+        {
+            "id": "4",
+            "key": "TCK-4",
+            "name": "My Fourth Ticket",
+            "description": "Lorem ipsum 4",
+            "creationDate": "2019-10-04T20:00:00",
+            "lastModified": "2019-10-04T21:00:00",
+            "status": "1",
+            "severity": "2"
+        },
+        {
+            "id": "5",
+            "key": "TCK-5",
+            "name": "My Fifth Ticket",
+            "description": "Lorem ipsum 5",
+            "creationDate": "2019-10-04T20:00:00",
+            "lastModified": "2019-10-04T21:00:00",
+            "status": "1",
+            "severity": "1"
+        }
+    ]
+}

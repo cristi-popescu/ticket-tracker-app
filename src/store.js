@@ -34,8 +34,10 @@ const initialState = {
             status: false,
             editTicketKey: ""
         },
-        pending: false,
-        error: ""
+        requestStatus: {
+            pending: false,
+            error: ""
+        }
     }
 };
 

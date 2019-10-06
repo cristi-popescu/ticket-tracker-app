@@ -15,10 +15,24 @@ const ticketReducer = (state = {}, action) => {
         case FETCH_TICKETS_PENDING:
             return {
                 ...state,
-                pending: true
+                requestStatus: {
+                    ...state.requestStatus,
+                    pending: true
+                }
             };
         case FETCH_TICKETS_SUCCESS:
-            const { byIds, allIds } = action.payload;
+            const tickets = action.payload;
+
+            const byIds = tickets.reduce((acc, ticket) => {
+                return {
+                    ...acc,
+                    [ticket.id]: ticket
+                };
+            }, {});
+
+            const allIds = tickets.map(ticket => {
+                return ticket.id;
+            });
 
             return {
                 ...state,
@@ -26,13 +40,19 @@ const ticketReducer = (state = {}, action) => {
                     byIds,
                     allIds
                 },
-                pending: false
+                requestStatus: {
+                    ...state.requestStatus,
+                    pending: false
+                }
             };
         case FETCH_TICKETS_ERROR:
             return {
                 ...state,
-                error: action.error,
-                pending: false
+                requestStatus: {
+                    ...state.requestStatus,
+                    error: action.payload,
+                    pending: false
+                }
             };
         case SORT_TICKETS:
             const { sortingKey, direction } = action.payload;

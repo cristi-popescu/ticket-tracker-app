@@ -122,14 +122,16 @@ export const selectLastTicketKey = state => {
 };
 
 export const selectNextTicketKey = state => {
-    const key = selectLastTicketKey(state);
-    const separator = "-";
-    const ticketKeyParts = key.split(separator);
-    let ticketNumber = ticketKeyParts[ticketKeyParts.length - 1];
+    return () => {
+        const key = selectLastTicketKey(state);
+        const separator = "-";
+        const ticketKeyParts = key.split(separator);
+        let ticketNumber = ticketKeyParts[ticketKeyParts.length - 1];
 
-    ticketKeyParts.splice(-1, 1, ++ticketNumber);
+        ticketKeyParts.splice(-1, 1, ++ticketNumber);
 
-    return ticketKeyParts.join(separator);
+        return ticketKeyParts.join(separator);
+    };
 };
 
 export const selectTicketSeverities = state => state.tickets.severities;
@@ -167,3 +169,5 @@ export const selectGadgetTickets = state => {
         lastTicketsResolved
     };
 };
+
+export const selectRequestStatus = state => state.tickets.requestStatus;

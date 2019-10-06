@@ -1,6 +1,3 @@
-import React from "react";
-import Badge from "react-bootstrap/Badge";
-
 const TicketDate = props => {
     const formatDate = date => {
         const options = {
