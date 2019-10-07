@@ -11,11 +11,11 @@
       "id": "kXsAeFG"
     },
     {
-      "status": "2",
+      "status": "1",
       "severity": "1",
       "name": "Ticket 2",
       "description": "Lorem ipsum 2",
-      "lastModified": "2019-10-07T21:04:18.046Z",
+      "lastModified": "2019-10-07T21:08:18.707Z",
       "key": "TCK-2",
       "creationDate": "2019-10-07T20:48:15.464Z",
       "id": "N6ElbOJ"
@@ -31,11 +31,11 @@
       "id": "dPl1lP6"
     },
     {
-      "status": "1",
+      "status": "2",
       "severity": "2",
       "name": "Ticket 4",
       "description": "Lorem ipsum 4",
-      "lastModified": "2019-10-07T21:03:21.386Z",
+      "lastModified": "2019-10-07T21:08:23.067Z",
       "key": "TCK-4",
       "creationDate": "2019-10-07T21:03:21.386Z",
       "id": "_zvq7mE"
