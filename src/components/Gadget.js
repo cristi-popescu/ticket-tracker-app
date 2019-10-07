@@ -1,5 +1,5 @@
 import React from "react";
-import TicketTable from "./TicketTable";
+import TicketTable from "./tickets/TicketTable";
 
 import Toast from "react-bootstrap/Toast";
 

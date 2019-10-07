@@ -4,12 +4,12 @@ import TicketTable from "./TicketTable";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
 
-import { sortTickets } from "../actions/ticketActions";
+import { sortTickets } from "../../actions/ticketActions";
 import {
     selectSortedTickets,
     selectTicketStatuses,
     selectSortingRule
-} from "../selectors";
+} from "../../selectors";
 
 const TicketList = props => {
     const sortTicketsHandler = e => {

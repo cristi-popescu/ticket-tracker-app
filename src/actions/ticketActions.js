@@ -1,6 +1,7 @@
 import {
     FETCH_TICKETS_PENDING,
-    FETCH_TICKETS_SUCCESS,
+    FETCH_ALL_TICKETS_SUCCESS,
+    FETCH_TICKET_SUCCESS,
     FETCH_TICKETS_ERROR,
     SORT_TICKETS,
     ADD_TICKET,
@@ -16,9 +17,16 @@ export const fetchTicketsPending = () => {
     };
 };
 
-export const fetchTicketsSuccess = data => {
+export const fetchAllTicketsSuccess = data => {
     return {
-        type: FETCH_TICKETS_SUCCESS,
+        type: FETCH_ALL_TICKETS_SUCCESS,
+        payload: data
+    };
+};
+
+export const fetchTicketSuccess = data => {
+    return {
+        type: FETCH_TICKET_SUCCESS,
         payload: data
     };
 };
@@ -38,28 +46,16 @@ export const sortTickets = data => {
 };
 
 export const addTicket = data => {
-    // TODO: Add Ticket Service Call
-
     return {
         type: ADD_TICKET,
-        payload: {
-            creationDate: new Date(),
-            lastModified: new Date(),
-            ...data
-        }
+        payload: data
     };
 };
 
 export const editTicket = data => {
-    // TODO: Update ticket Service Call
-
     return {
         type: EDIT_TICKET,
-        payload: {
-            lastModified: new Date(),
-            status: "1",
-            ...data
-        }
+        payload: data
     };
 };
 
@@ -79,9 +75,6 @@ export const closeTicketModal = () => {
 export const changeTicketStatus = data => {
     return {
         type: CHANGE_TICKET_STATUS,
-        payload: {
-            ...data,
-            lastModified: new Date()
-        }
+        payload: data
     };
 };

@@ -1,13 +1,14 @@
 import {
     FETCH_TICKETS_PENDING,
-    FETCH_TICKETS_SUCCESS,
+    FETCH_ALL_TICKETS_SUCCESS,
     FETCH_TICKETS_ERROR,
     SORT_TICKETS,
     ADD_TICKET,
     EDIT_TICKET,
     SHOW_TICKET_MODAL,
     CLOSE_TICKET_MODAL,
-    CHANGE_TICKET_STATUS
+    CHANGE_TICKET_STATUS,
+    FETCH_TICKET_SUCCESS
 } from "../actions/types";
 
 const ticketReducer = (state = {}, action) => {
@@ -20,7 +21,7 @@ const ticketReducer = (state = {}, action) => {
                     pending: true
                 }
             };
-        case FETCH_TICKETS_SUCCESS:
+        case FETCH_ALL_TICKETS_SUCCESS:
             const tickets = action.payload;
 
             const byIds = tickets.reduce((acc, ticket) => {
@@ -39,6 +40,29 @@ const ticketReducer = (state = {}, action) => {
                 items: {
                     byIds,
                     allIds
+                },
+                requestStatus: {
+                    ...state.requestStatus,
+                    pending: false
+                }
+            };
+        case FETCH_TICKET_SUCCESS:
+            const ticket = action.payload;
+            const fetchTicketAllIds = [...state.items.allIds];
+            const { id: fetchTicketId } = ticket;
+
+            if (fetchTicketAllIds.indexOf(fetchTicketId) === -1) {
+                fetchTicketAllIds.push(fetchTicketId);
+            }
+
+            return {
+                ...state,
+                items: {
+                    byIds: {
+                        ...state.items.byIds,
+                        [ticket.id]: ticket
+                    },
+                    allIds: fetchTicketAllIds
                 },
                 requestStatus: {
                     ...state.requestStatus,

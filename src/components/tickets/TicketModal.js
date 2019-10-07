@@ -12,15 +12,16 @@ import Alert from "react-bootstrap/Alert";
 import {
     addTicket,
     editTicket,
-    closeTicketModal
-} from "../actions/ticketActions";
+    closeTicketModal,
+    fetchTicketSuccess
+} from "../../actions/ticketActions";
 import {
     selectShowTicketModal,
     selectNextTicketKey,
     selectTicketStatuses,
     selectTicketSeverities,
     selectTicketByKey
-} from "../selectors";
+} from "../../selectors";
 
 class TicketModal extends Component {
     constructor(props) {
@@ -48,9 +49,15 @@ class TicketModal extends Component {
         return showTicketModal.editTicketKey || nextTicketKey;
     }
 
-    getCreateState(key) {
+    getNextTicketKey() {
+        const { getNextTicketKey } = this.props;
+
+        return getNextTicketKey();
+    }
+
+    getCreateState() {
         return {
-            key,
+            key: "",
             status: "1",
             severity: this.props.severities.allIds[0].toString(),
             name: "",
@@ -59,6 +66,7 @@ class TicketModal extends Component {
             buttonText: "Submit",
             action: "create",
             showStatuses: false,
+            updatePending: false,
             confirmationMessage: {
                 status: false,
                 text: ""
@@ -82,6 +90,7 @@ class TicketModal extends Component {
             buttonText: "Save",
             action: "edit",
             showStatuses: true,
+            updatePending: false,
             confirmationMessage: {
                 status: false,
                 text: ""
@@ -128,61 +137,126 @@ class TicketModal extends Component {
         const form = e.currentTarget;
         const { action, status, severity, name, description } = this.state;
         const { dispatch, getTicketByKey } = this.props;
-        const key = this.getTicketKey();
-        const actionPayload = {
+        let actionPayload = {
             status,
             severity,
             name,
-            description
+            description,
+            lastModified: new Date()
         };
         let confirmationMessage = { status: true };
+        let response = null;
 
         e.preventDefault();
 
         if (form.checkValidity()) {
+            this.setState({
+                updatePending: true
+            });
+
             if (action === "edit") {
-                const { id } = getTicketByKey(key);
+                const updateTicket = async actionPayload => {
+                    const key = this.getTicketKey();
+                    const { id } = getTicketByKey(key);
 
-                dispatch(
-                    editTicket({
-                        id,
-                        key,
-                        ...actionPayload
-                    })
-                );
+                    response = await fetch(
+                        "http://localhost:3001/tickets/" + id,
+                        {
+                            method: "PATCH",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(actionPayload)
+                        }
+                    );
 
-                this.handleClose();
-            } else {
-                dispatch(
-                    addTicket({
-                        key,
-                        ...actionPayload
-                    })
-                );
+                    if (response.ok) {
+                        dispatch(
+                            editTicket({
+                                id,
+                                ...actionPayload
+                            })
+                        );
 
-                confirmationMessage = {
-                    ...confirmationMessage,
-                    text: this.getConfirmationMessageText(action, key)
+                        this.handleClose();
+                    }
                 };
 
-                this.setState({
-                    ...this.getCreateState(""),
-                    severity: "",
-                    confirmationMessage
-                });
+                updateTicket(actionPayload);
+            } else {
+                const createTicket = async actionPayload => {
+                    const key = this.getNextTicketKey();
+
+                    actionPayload = {
+                        ...actionPayload,
+                        key,
+                        creationDate: actionPayload.lastModified
+                    };
+
+                    response = await fetch("http://localhost:3001/tickets", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(actionPayload)
+                    });
+
+                    if (response.ok) {
+                        dispatch(
+                            addTicket({
+                                key,
+                                ...actionPayload
+                            })
+                        );
+
+                        confirmationMessage = {
+                            ...confirmationMessage,
+                            text: this.getConfirmationMessageText(action, key)
+                        };
+
+                        this.setState({
+                            ...this.getCreateState(""),
+                            severity: "",
+                            confirmationMessage
+                        });
+                    }
+                };
+
+                createTicket(actionPayload);
             }
         }
     }
 
-    handleShow() {
-        const { getNextTicketKey } = this.props;
+    async handleShow() {
+        const { dispatch } = this.props;
+        this.setState({
+            updatePending: true
+        });
+
+        // Temp solution, normally the service would handle generating a new key
+        /* ... */
+        const response = await fetch(
+            "http://localhost:3001/tickets?_sort=key&_order=desc&limit=1"
+        );
+
+        if (response.ok) {
+            const ticket = await response.json();
+            dispatch(fetchTicketSuccess(ticket[0]));
+        } else {
+            throw new Error();
+        }
+        /* ... */
+
         const currentTicketKey = this.getTicketKey();
-        const nextTicketKey = getNextTicketKey();
+        const nextTicketKey = this.getNextTicketKey();
 
         if (currentTicketKey !== nextTicketKey) {
             this.setState(this.getEditState());
         } else {
-            this.setState(this.getCreateState(currentTicketKey));
+            this.setState({
+                ...this.getCreateState(),
+                key: nextTicketKey
+            });
         }
     }
 
@@ -208,7 +282,8 @@ class TicketModal extends Component {
             confirmationMessage,
             modalTitle,
             showStatuses,
-            buttonText
+            buttonText,
+            updatePending
         } = this.state;
 
         return (
@@ -317,7 +392,11 @@ class TicketModal extends Component {
                                     />
                                 </Form.Group>
 
-                                <Button variant="dark" type="submit">
+                                <Button
+                                    variant="dark"
+                                    type="submit"
+                                    disabled={updatePending}
+                                >
                                     {buttonText}
                                 </Button>
                             </Form>

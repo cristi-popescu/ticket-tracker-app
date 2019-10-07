@@ -115,7 +115,7 @@ export const selectLastTicketKey = state => {
     if (!lastAddedTicketKey) {
         const tickets = selectTickets(state);
 
-        lastAddedTicketKey = tickets[tickets.length - 1].key;
+        return tickets[tickets.length - 1].key;
     }
 
     return lastAddedTicketKey;

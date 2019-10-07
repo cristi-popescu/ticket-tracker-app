@@ -8,7 +8,7 @@ import Table from "react-bootstrap/Table";
 
 import TicketRow from "./TicketRow";
 
-import { selectRequestStatus } from "../selectors";
+import { selectRequestStatus } from "../../selectors";
 
 const TicketTable = props => {
     const {
