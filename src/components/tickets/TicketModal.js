@@ -160,7 +160,8 @@ class TicketModal extends Component {
                     const { id } = getTicketByKey(key);
 
                     response = await fetch(
-                        "http://localhost:3001/tickets/" + id,
+                        "https://ticket-tracker-json-server.herokuapp.com/tickets/" +
+                            id,
                         {
                             method: "PATCH",
                             headers: {
@@ -193,13 +194,16 @@ class TicketModal extends Component {
                         creationDate: actionPayload.lastModified
                     };
 
-                    response = await fetch("http://localhost:3001/tickets", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(actionPayload)
-                    });
+                    response = await fetch(
+                        "https://ticket-tracker-json-server.herokuapp.com/tickets",
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(actionPayload)
+                        }
+                    );
 
                     if (response.ok) {
                         dispatch(
@@ -236,7 +240,7 @@ class TicketModal extends Component {
         // Temp solution, normally the service would handle generating a new key
         /* ... */
         const response = await fetch(
-            "http://localhost:3001/tickets?_sort=key&_order=desc&limit=1"
+            "https://ticket-tracker-json-server.herokuapp.com/tickets/?_sort=key&_order=desc&limit=1"
         );
 
         if (response.ok) {

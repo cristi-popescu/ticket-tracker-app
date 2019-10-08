@@ -53,7 +53,8 @@ class TicketDetail extends Component {
 
         try {
             const response = await fetch(
-                "http://localhost:3001/tickets?key=" + this.getTicketKey()
+                "https://ticket-tracker-json-server.herokuapp.com/tickets/?key=" +
+                    this.getTicketKey()
             );
 
             if (response.ok) {
@@ -146,16 +147,20 @@ class TicketDetail extends Component {
 
                 let lastModified = new Date();
 
-                await fetch("http://localhost:3001/tickets/" + id, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        status: newStatus.toString(),
-                        lastModified
-                    })
-                });
+                await fetch(
+                    "https://ticket-tracker-json-server.herokuapp.com/tickets/" +
+                        id,
+                    {
+                        method: "PATCH",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            status: newStatus.toString(),
+                            lastModified
+                        })
+                    }
+                );
 
                 dispatch(
                     changeTicketStatus({

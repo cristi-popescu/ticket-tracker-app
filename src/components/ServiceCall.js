@@ -16,7 +16,9 @@ class ServiceCall extends Component {
         dispatch(fetchTicketsPending());
 
         try {
-            const response = await fetch("http://localhost:3001/tickets");
+            const response = await fetch(
+                "https://ticket-tracker-json-server.herokuapp.com/tickets"
+            );
 
             if (response.ok) {
                 const tickets = await response.json();
