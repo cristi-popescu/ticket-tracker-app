@@ -2,7 +2,6 @@ import React from "react";
 import TicketTable from "./TicketTable";
 
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 
 import { sortTickets } from "../../actions/ticketActions";
 import {
@@ -13,7 +12,7 @@ import {
 
 const TicketList = props => {
     const sortTicketsHandler = e => {
-        const { dispatch, sortingRule } = props;
+        const { sortTickets, sortingRule } = props;
         const { sortingKey, direction } = sortingRule;
         const { currentTarget } = e;
         const triggeredSortingKey = currentTarget.getAttribute("column");
@@ -23,12 +22,10 @@ const TicketList = props => {
             triggeredDirection = direction === "asc" ? "desc" : "asc";
         }
 
-        dispatch(
-            sortTickets({
-                sortingKey: triggeredSortingKey,
-                direction: triggeredDirection
-            })
-        );
+        sortTickets({
+            sortingKey: triggeredSortingKey,
+            direction: triggeredDirection
+        });
     };
 
     const { tickets, ticketStatuses, sortingRule } = props;
@@ -57,15 +54,9 @@ const mapStateToProps = state => ({
     sortingRule: selectSortingRule(state)
 });
 
-const mapDispatchToProps = dispatch => ({
-    dispatch,
-    ...bindActionCreators(
-        {
-            sortTickets
-        },
-        dispatch
-    )
-});
+const mapDispatchToProps = {
+    sortTickets
+};
 
 export default connect(
     mapStateToProps,

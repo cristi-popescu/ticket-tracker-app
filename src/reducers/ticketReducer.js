@@ -1,15 +1,16 @@
 import {
     FETCH_TICKETS_PENDING,
     FETCH_ALL_TICKETS_SUCCESS,
+    FETCH_TICKET_SUCCESS,
+    UPDATE_TICKET_SUCCESS,
     FETCH_TICKETS_ERROR,
     SORT_TICKETS,
-    ADD_TICKET,
-    EDIT_TICKET,
+    CREATE_TICKET_SUCCESS,
     SHOW_TICKET_MODAL,
-    CLOSE_TICKET_MODAL,
-    CHANGE_TICKET_STATUS,
-    FETCH_TICKET_SUCCESS
+    CLOSE_TICKET_MODAL
 } from "../actions/types";
+import initialState from "../configs/initialState";
+import createReducer from "./createReducer";
 
 const fetchTicketPending = (state, action) => {
     return {
@@ -23,6 +24,8 @@ const fetchTicketPending = (state, action) => {
 
 const fetchAllTicketsSuccess = (state, action) => {
     const tickets = action.payload;
+
+    console.dir(tickets);
 
     const byIds = tickets.reduce((acc, ticket) => {
         return {
@@ -96,7 +99,7 @@ const sortTickets = (state, action) => {
     };
 };
 
-const addTicket = (state, action) => {
+const createTicketSuccess = (state, action) => {
     const { allIds } = state.items;
     const nextId = (parseInt(allIds[allIds.length - 1], 10) + 1).toString();
 
@@ -114,24 +117,6 @@ const addTicket = (state, action) => {
             allIds: [...state.items.allIds, nextId]
         },
         lastAddedTicketKey: action.payload.key
-    };
-};
-
-const editTicket = (state, action) => {
-    const { id } = action.payload;
-
-    return {
-        ...state,
-        items: {
-            ...state.items,
-            byIds: {
-                ...state.items.byIds,
-                [id]: {
-                    ...state.items.byIds[id],
-                    ...action.payload
-                }
-            }
-        }
     };
 };
 
@@ -155,8 +140,8 @@ const closeTicketModal = (state, action) => {
     };
 };
 
-const changeTicketStatus = (state, action) => {
-    const { id, newStatus, lastModified } = action.payload;
+const updateTicketSuccess = (state, action) => {
+    const { id } = action.payload;
 
     return {
         ...state,
@@ -166,39 +151,29 @@ const changeTicketStatus = (state, action) => {
                 ...state.items.byIds,
                 [id]: {
                     ...state.items.byIds[id],
-                    status: newStatus.toString(),
-                    lastModified
+                    ...action.payload
                 }
             }
+        },
+        requestStatus: {
+            ...state.requestStatus,
+            pending: false
         }
     };
 };
 
-const ticketReducer = (state = {}, action) => {
-    switch (action.type) {
-        case FETCH_TICKETS_PENDING:
-            return fetchTicketPending(state, action);
-        case FETCH_ALL_TICKETS_SUCCESS:
-            return fetchAllTicketsSuccess(state, action);
-        case FETCH_TICKET_SUCCESS:
-            return fetchTicketSuccess(state, action);
-        case FETCH_TICKETS_ERROR:
-            return fetchTicketsError(state, action);
-        case SORT_TICKETS:
-            return sortTickets(state, action);
-        case ADD_TICKET:
-            return addTicket(state, action);
-        case EDIT_TICKET:
-            return editTicket(state, action);
-        case SHOW_TICKET_MODAL:
-            return showTicketModal(state, action);
-        case CLOSE_TICKET_MODAL:
-            return closeTicketModal(state, action);
-        case CHANGE_TICKET_STATUS:
-            return changeTicketStatus(state, action);
-        default:
-            return state;
-    }
+const handlers = {
+    [FETCH_TICKETS_PENDING]: fetchTicketPending,
+    [FETCH_ALL_TICKETS_SUCCESS]: fetchAllTicketsSuccess,
+    [FETCH_TICKET_SUCCESS]: fetchTicketSuccess,
+    [UPDATE_TICKET_SUCCESS]: updateTicketSuccess,
+    [FETCH_TICKETS_ERROR]: fetchTicketsError,
+    [SORT_TICKETS]: sortTickets,
+    [CREATE_TICKET_SUCCESS]: createTicketSuccess,
+    [SHOW_TICKET_MODAL]: showTicketModal,
+    [CLOSE_TICKET_MODAL]: closeTicketModal
 };
+
+const ticketReducer = createReducer(initialState, handlers);
 
 export default ticketReducer;

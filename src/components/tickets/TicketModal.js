@@ -2,7 +2,6 @@ import React, { Component } from "react";
 import { Link } from "react-router-dom";
 
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 
 import Form from "react-bootstrap/Form";
 import Modal from "react-bootstrap/Modal";
@@ -10,10 +9,10 @@ import Button from "react-bootstrap/Button";
 import Alert from "react-bootstrap/Alert";
 
 import {
-    addTicket,
-    editTicket,
     closeTicketModal,
-    fetchTicketSuccess
+    fetchTicketSuccess,
+    createTicket,
+    updateTicket
 } from "../../actions/ticketActions";
 import {
     selectShowTicketModal,
@@ -136,7 +135,7 @@ class TicketModal extends Component {
     handleFormSubmit(e) {
         const form = e.currentTarget;
         const { action, status, severity, name, description } = this.state;
-        const { dispatch, getTicketByKey } = this.props;
+        const { getTicketByKey, updateTicket, createTicket } = this.props;
         let actionPayload = {
             status,
             severity,
@@ -145,7 +144,6 @@ class TicketModal extends Component {
             lastModified: new Date()
         };
         let confirmationMessage = { status: true };
-        let response = null;
 
         e.preventDefault();
 
@@ -155,80 +153,38 @@ class TicketModal extends Component {
             });
 
             if (action === "edit") {
-                const updateTicket = async actionPayload => {
-                    const key = this.getTicketKey();
-                    const { id } = getTicketByKey(key);
+                const key = this.getTicketKey();
+                const { id } = getTicketByKey(key);
 
-                    response = await fetch(
-                        "http://localhost:3001/tickets/" + id,
-                        {
-                            method: "PATCH",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify(actionPayload)
-                        }
-                    );
-
-                    if (response.ok) {
-                        dispatch(
-                            editTicket({
-                                id,
-                                ...actionPayload
-                            })
-                        );
-
-                        this.handleClose();
-                    }
-                };
-
-                updateTicket(actionPayload);
+                updateTicket(id, actionPayload);
             } else {
-                const createTicket = async actionPayload => {
-                    const key = this.getNextTicketKey();
+                const key = this.getNextTicketKey();
 
-                    actionPayload = {
-                        ...actionPayload,
-                        key,
-                        creationDate: actionPayload.lastModified
-                    };
-
-                    response = await fetch("http://localhost:3001/tickets", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/json"
-                        },
-                        body: JSON.stringify(actionPayload)
-                    });
-
-                    if (response.ok) {
-                        dispatch(
-                            addTicket({
-                                key,
-                                ...actionPayload
-                            })
-                        );
-
-                        confirmationMessage = {
-                            ...confirmationMessage,
-                            text: this.getConfirmationMessageText(action, key)
-                        };
-
-                        this.setState({
-                            ...this.getCreateState(""),
-                            severity: "",
-                            confirmationMessage
-                        });
-                    }
+                actionPayload = {
+                    ...actionPayload,
+                    key,
+                    creationDate: actionPayload.lastModified
                 };
 
                 createTicket(actionPayload);
+
+                // TO DO: FIX THIS
+                confirmationMessage = {
+                    ...confirmationMessage,
+                    text: this.getConfirmationMessageText(action, key)
+                };
+
+                this.setState({
+                    ...this.getCreateState(""),
+                    severity: "",
+                    confirmationMessage
+                });
             }
         }
     }
 
     async handleShow() {
-        const { dispatch } = this.props;
+        const { fetchTicketSuccess } = this.props;
         this.setState({
             updatePending: true
         });
@@ -241,7 +197,7 @@ class TicketModal extends Component {
 
         if (response.ok) {
             const ticket = await response.json();
-            dispatch(fetchTicketSuccess(ticket[0]));
+            fetchTicketSuccess(ticket[0]);
         } else {
             throw new Error();
         }
@@ -261,9 +217,9 @@ class TicketModal extends Component {
     }
 
     handleClose() {
-        const { dispatch } = this.props;
+        const { closeTicketModal } = this.props;
 
-        dispatch(closeTicketModal());
+        closeTicketModal();
 
         this.setState({
             ...this.getCreateState(""),
@@ -423,10 +379,12 @@ const mapStateToProps = state => ({
     getTicketByKey: selectTicketByKey(state)
 });
 
-const mapDispatchToProps = dispatch => ({
-    dispatch,
-    ...bindActionCreators({ addTicket, closeTicketModal }, dispatch)
-});
+const mapDispatchToProps = {
+    fetchTicketSuccess,
+    closeTicketModal,
+    createTicket,
+    updateTicket
+};
 
 export default connect(
     mapStateToProps,

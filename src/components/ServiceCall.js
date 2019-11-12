@@ -1,37 +1,12 @@
 import { Component } from "react";
 
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 
-import {
-    fetchTicketsPending,
-    fetchAllTicketsSuccess,
-    fetchTicketsError
-} from "../actions/ticketActions";
+import { fetchAllTickets } from "../actions/ticketActions";
 
 class ServiceCall extends Component {
-    async fetchTickets() {
-        const { dispatch } = this.props;
-
-        dispatch(fetchTicketsPending());
-
-        try {
-            const response = await fetch("http://localhost:3001/tickets");
-
-            if (response.ok) {
-                const tickets = await response.json();
-
-                dispatch(fetchAllTicketsSuccess(tickets));
-            } else {
-                throw new Error();
-            }
-        } catch (e) {
-            dispatch(fetchTicketsError("Error loading tickets."));
-        }
-    }
-
     componentDidMount() {
-        this.fetchTickets();
+        this.props.fetchAllTickets();
     }
 
     render() {
@@ -39,17 +14,9 @@ class ServiceCall extends Component {
     }
 }
 
-const mapDispatchToProps = dispatch => ({
-    dispatch,
-    ...bindActionCreators(
-        {
-            fetchTicketsPending,
-            fetchAllTicketsSuccess,
-            fetchTicketsError
-        },
-        dispatch
-    )
-});
+const mapDispatchToProps = {
+    fetchAllTickets
+};
 
 export default connect(
     null,

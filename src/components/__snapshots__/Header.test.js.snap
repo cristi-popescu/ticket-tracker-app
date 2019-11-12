@@ -1,0 +1,47 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Header renders correctly 1`] = `
+<nav
+  className="navbar navbar-expand navbar-dark bg-dark"
+>
+  <a
+    href="/"
+    onClick={[Function]}
+  >
+    <span
+      className="navbar-brand"
+    >
+      <img
+        alt="Ticket Tracker"
+        className="d-inline-block align-middle"
+        height="50"
+        src="logo.svg"
+        width="50"
+      />
+      Ticket Tracker
+    </span>
+  </a>
+  <a
+    className="navbar-link"
+    href="/"
+    onClick={[Function]}
+  >
+    Dashboard
+  </a>
+  <a
+    className="navbar-link"
+    href="/ticket-list"
+    onClick={[Function]}
+  >
+    View All Tickets
+  </a>
+  <button
+    className="btn btn-light"
+    disabled={false}
+    onClick={[Function]}
+    type="button"
+  >
+    Create Ticket
+  </button>
+</nav>
+`;

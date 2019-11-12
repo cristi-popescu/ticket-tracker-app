@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`TicketRow renders correctly 1`] = `
+<tr
+  onClick={[Function]}
+>
+  <td
+    className=""
+  >
+    <b>
+      TCK-1
+    </b>
+  </td>
+  <td
+    className=""
+  >
+    Ticket 1
+  </td>
+  <td
+    className=""
+  >
+    <span
+      className="badge"
+    >
+      1
+    </span>
+  </td>
+  <td
+    className=""
+  >
+    Oct 7, 2019 11:40 PM
+  </td>
+  <td
+    className=""
+  >
+    Nov 9, 2019 5:56 PM
+  </td>
+</tr>
+`;

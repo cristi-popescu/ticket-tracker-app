@@ -9,10 +9,10 @@ import TicketList from "./components/tickets/TicketList";
 import TicketModal from "./components/tickets/TicketModal";
 import TicketDetail from "./components/tickets/TicketDetail";
 
-const App = () => {
+export const App = () => {
     return (
         <Router>
-            <Header></Header>
+            <Header />
             <Switch>
                 <Route path="/ticket-list">
                     <h1>Tickets</h1>

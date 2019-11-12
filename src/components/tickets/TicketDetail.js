@@ -1,7 +1,6 @@
-import React, { Component } from "react";
+import React, { PureComponent } from "react";
 
 import { connect } from "react-redux";
-import { bindActionCreators } from "redux";
 
 import ListGroup from "react-bootstrap/ListGroup";
 import Toast from "react-bootstrap/Toast";
@@ -12,12 +11,12 @@ import Alert from "react-bootstrap/Alert";
 import TicketBadge from "./TicketBadge";
 import TicketDate from "./TicketDate";
 
+import statusChangeButtonConfig from "../../configs/statusChangeButton";
+
 import {
-    changeTicketStatus,
     showTicketModal,
-    fetchTicketsPending,
-    fetchTicketSuccess,
-    fetchTicketsError
+    fetchTicket,
+    updateTicket
 } from "../../actions/ticketActions";
 
 import {
@@ -28,85 +27,28 @@ import {
     selectRequestStatus
 } from "../../selectors";
 
-class TicketDetail extends Component {
+class TicketDetail extends PureComponent {
     constructor(props) {
         super(props);
 
-        this.state = {
-            statusChangeButton: {},
-            updatePending: false
-        };
-
-        this.getStatusChangeButtonConfig = this.getStatusChangeButtonConfig.bind(
-            this
-        );
         this.getStatusChangeButton = this.getStatusChangeButton.bind(this);
         this.getTicket = this.getTicket.bind(this);
         this.editHandler = this.editHandler.bind(this);
         this.statusChangeHandler = this.statusChangeHandler.bind(this);
     }
 
-    async fetchTicket() {
-        const { dispatch } = this.props;
-
-        dispatch(fetchTicketsPending());
-
-        try {
-            const response = await fetch(
-                "http://localhost:3001/tickets?key=" + this.getTicketKey()
-            );
-
-            if (response.ok) {
-                const ticket = await response.json();
-
-                dispatch(fetchTicketSuccess(ticket[0]));
-
-                this.setState({
-                    statusChangeButton: this.getStatusChangeButton()
-                });
-            } else {
-                throw new Error();
-            }
-        } catch (e) {
-            dispatch(fetchTicketsError("Error loading ticket."));
-        }
-    }
-
     componentDidMount() {
-        this.fetchTicket();
+        this.props.fetchTicket(this.getTicketKey());
     }
 
-    componentDidUpdate(prevProps) {
-        const currentTicketModalStatus = this.props.ticketModal.status;
-        const prevTicketModalStatus = prevProps.ticketModal.status;
+    getStatusChangeButton(ticket) {
+        if (ticket) {
+            const { status } = ticket;
 
-        if (currentTicketModalStatus !== prevTicketModalStatus) {
-            this.setState({
-                statusChangeButton: this.getStatusChangeButton()
-            });
+            return statusChangeButtonConfig[status];
         }
-    }
 
-    getStatusChangeButtonConfig() {
-        return {
-            1: {
-                text: "Resolve",
-                action: "Resolve",
-                newStatus: 2
-            },
-            2: {
-                text: "Re-Open",
-                action: "Re-Open",
-                newStatus: 1
-            }
-        };
-    }
-
-    getStatusChangeButton() {
-        const ticket = this.getTicket();
-        const { status } = ticket;
-
-        return this.getStatusChangeButtonConfig()[status];
+        return {};
     }
 
     getTicketKey() {
@@ -122,65 +64,30 @@ class TicketDetail extends Component {
     }
 
     editHandler() {
-        const { dispatch, match } = this.props;
+        const { showTicketModal, match } = this.props;
         const { ticketKey } = match.params;
 
-        dispatch(
-            showTicketModal({
-                editTicketKey: ticketKey
-            })
-        );
+        showTicketModal({
+            editTicketKey: ticketKey
+        });
     }
 
     statusChangeHandler() {
-        const { statusChangeButton } = this.state;
-        const { dispatch } = this.props;
+        const ticket = this.getTicket();
+        const statusChangeButton = this.getStatusChangeButton(ticket);
+        const { id } = ticket;
         const { newStatus } = statusChangeButton;
-        const { id } = this.getTicket();
 
-        const updateTicketStatus = async () => {
-            try {
-                this.setState({
-                    updatePending: true
-                });
-
-                let lastModified = new Date();
-
-                await fetch("http://localhost:3001/tickets/" + id, {
-                    method: "PATCH",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({
-                        status: newStatus.toString(),
-                        lastModified
-                    })
-                });
-
-                dispatch(
-                    changeTicketStatus({
-                        id,
-                        newStatus: statusChangeButton.newStatus,
-                        lastModified
-                    })
-                );
-
-                this.setState({
-                    statusChangeButton: this.getStatusChangeButtonConfig()[
-                        newStatus
-                    ],
-                    updatePending: false
-                });
-            } catch (e) {}
-        };
-
-        updateTicketStatus();
+        this.props.updateTicket(id, {
+            status: newStatus.toString(),
+            lastModified: new Date()
+        });
     }
 
     render() {
         const ticket = this.getTicket();
         const { ticketStatuses, ticketSeverities, requestStatus } = this.props;
-        const { statusChangeButton, updatePending } = this.state;
+        const statusChangeButton = this.getStatusChangeButton(ticket);
         const status = ticket && ticket.status;
 
         return (
@@ -192,7 +99,7 @@ class TicketDetail extends Component {
                             className="ticket-detail-button"
                             variant="dark"
                             onClick={this.editHandler}
-                            disabled={updatePending}
+                            disabled={requestStatus.pending}
                         >
                             Edit
                         </Button>
@@ -201,7 +108,7 @@ class TicketDetail extends Component {
                             variant="dark"
                             action={statusChangeButton.action}
                             onClick={this.statusChangeHandler}
-                            disabled={updatePending}
+                            disabled={requestStatus.pending}
                         >
                             {statusChangeButton.text}
                         </Button>
@@ -256,10 +163,11 @@ const mapStateToProps = state => ({
     requestStatus: selectRequestStatus(state)
 });
 
-const mapDispatchToProps = dispatch => ({
-    dispatch,
-    ...bindActionCreators({ changeTicketStatus, showTicketModal }, dispatch)
-});
+const mapDispatchToProps = {
+    fetchTicket,
+    updateTicket,
+    showTicketModal
+};
 
 export default connect(
     mapStateToProps,
